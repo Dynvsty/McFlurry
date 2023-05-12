@@ -12,36 +12,52 @@ import threading
 print("Running")
 
 if getattr(sys, 'frozen', False):
-    # we are running in a bundle
+    # We are running in a bundle
     bundle_dir = sys._MEIPASS
 else:
     # we are running in a normal Python environment
     bundle_dir = os.path.abspath(os.path.dirname(__file__))
 
-# use bundle_dir to locate the icon file
+# Use bundle_dir to locate the icon file
 icon_path = os.path.join(bundle_dir, "assets/icon.ico")
-
 
 
 # Simulate right clicking on the window bar
 def simulate_window_right_click(title):
     hwnd = None
-
+    # Get the minecraft program id
     def callback(handle, data):
         nonlocal hwnd
         window_title = win32gui.GetWindowText(handle).lower()
-        if window_title.startswith(title.lower()):
-            if window_title != "minecraft game output" or "minecraft launcher":
-                hwnd = handle
+        if window_title.startswith(title.lower()) and window_title != "minecraft launcher" and window_title != "minecraft game output":
+            hwnd = handle
+
 
     win32gui.EnumWindows(callback, None)
     if hwnd is None:
         print(f"Could not find window with title '{title}'")
         return
+    
+    style = win32api.GetWindowLong(hwnd, win32con.GWL_STYLE)
 
-    x, y = 0, 0  # Coordinates of the right-click relative to the top-left corner of the window
-    win32api.SendMessage(hwnd, win32con.WM_NCRBUTTONDOWN, win32con.HTCAPTION, win32api.MAKELONG(x, y))
-    win32api.SendMessage(hwnd, win32con.WM_NCRBUTTONUP, win32con.HTCAPTION, win32api.MAKELONG(x, y))
+    # If window is fullscreened, un-fullscreen & click the title bar
+    if not (style & win32con.WS_OVERLAPPEDWINDOW):
+        win32api.SetWindowLong(hwnd, win32con.GWL_STYLE,
+                               win32con.WS_OVERLAPPEDWINDOW)
+        win32gui.ShowWindow(hwnd, win32con.SW_SHOWMAXIMIZED)
+        x, y = 0, 0  # Coordinates of the right-click relative to the top-left corner of the window
+        win32api.SendMessage(hwnd, win32con.WM_NCRBUTTONDOWN, win32con.HTCAPTION, win32api.MAKELONG(x, y))
+        win32api.SendMessage(hwnd, win32con.WM_NCRBUTTONUP, win32con.HTCAPTION, win32api.MAKELONG(x, y))
+        # Re-Fullscreen the window
+        win32api.SetWindowLong(hwnd, win32con.GWL_STYLE,
+                               win32con.WS_POPUP | win32con.WS_VISIBLE)
+        win32gui.ShowWindow(hwnd, win32con.SW_SHOWMAXIMIZED)
+
+    # If window is not fullscreened, click the title bar
+    else:
+        x, y = 0, 0  # Coordinates of the right-click relative to the top-left corner of the window
+        win32api.SendMessage(hwnd, win32con.WM_NCRBUTTONDOWN, win32con.HTCAPTION, win32api.MAKELONG(x, y))
+        win32api.SendMessage(hwnd, win32con.WM_NCRBUTTONUP, win32con.HTCAPTION, win32api.MAKELONG(x, y))
 
 
 def on_hotkey_pressed():
