@@ -1,15 +1,22 @@
+# ©2023 by Insomnix Inc.
+
 import win32api
 import win32gui
 import win32con
 import keyboard
 import os
 import sys
+import mouse
 from PIL import Image
 import pystray
 import signal
 import threading
 
-print("Running")
+global hotkey
+
+def fix_hotkey():
+    keyboard.add_hotkey(hotkey, lambda: on_hotkey_pressed() if mouse.is_pressed(button='left') else None)
+    keyboard.add_hotkey(hotkey, lambda: on_hotkey_pressed() if mouse.is_pressed(button='right') else None)
 
 if getattr(sys, 'frozen', False):
     # We are running in a bundle
@@ -79,20 +86,25 @@ def record_hotkey():
     key_down_events = [event.name for event in events if event.event_type == keyboard.KEY_DOWN]
 
     # Get the hotkey name from the key down events
-    hotkey_name = keyboard.get_hotkey_name(key_down_events)
-    hotkey_name = hotkey_name.replace("esc+", "")
-    hotkey_name = hotkey_name.replace("esc", "")
+    hotkey = keyboard.get_hotkey_name(key_down_events)
+    hotkey = hotkey.replace("esc+", "")
+    hotkey = hotkey.replace("esc", "")
+    
+
     # Make sure the hotkey is not empty
-    if len(hotkey_name) <= 0:
+    if len(hotkey) <= 0:
         message = f'Please choose a longer hotkey.\nPress OK to record again.'
         win32api.MessageBox(None, message, title, win32con.MB_OK)
         return record_hotkey()
     else:
         pass
-    # Register the hotkey
-    hotkey = hotkey_name
-    done_message = f'Your keybind "{hotkey_name}", has been recorded.\nPress OK to continue'
+
+    # Register the hotkeys
+    done_message = f'Your keybind "{hotkey}", has been recorded.\nPress OK to continue'
+    
+    # Register the keyboard hotkey
     keyboard.add_hotkey(hotkey, on_hotkey_pressed)
+    fix_hotkey()
     win32api.MessageBox(None, done_message, title, win32con.MB_OK)
 
 # Check which button was clicked
@@ -100,12 +112,9 @@ if response == win32con.IDOK:
     win32api.MessageBox(None, recording_message, title, win32con.MB_OK)
     record_hotkey()
 else:
-    keyboard.add_hotkey('ctrl+alt+x', on_hotkey_pressed)
-
-# Create a thread for the keybind
-hotkey_thread = threading.Thread(target=keyboard.wait)
-hotkey_thread.daemon = True
-hotkey_thread.start()
+    hotkey = 'ctrl+alt+x'
+    fix_hotkey()
+    keyboard.add_hotkey(hotkey, on_hotkey_pressed)
 
 def on_quit():
     icon.stop()
