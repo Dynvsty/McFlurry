@@ -3,7 +3,7 @@
 color b
 
 REM Attempt to run pyinstaller build command
-pyinstaller.exe --noupx --onefile --add-data "assets/;assets" --hidden-import=PIL --hidden-import=pystray --hidden-import=keyboard  --icon=assets/icon.ico main.pyw
+pyinstaller.exe --noupx --onefile --add-data "assets/;assets" --hidden-import=PIL --hidden-import=pystray --hidden-import=keyboard --hidden-import=mouse --icon=assets/icon.ico main.pyw
 
 REM Check if the previous command failed due to pyinstaller not being installed
 if %errorlevel% equ 9009 goto pyinstaller
