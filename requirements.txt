@@ -1,4 +1,5 @@
-pywin32==305
-keyboard==0.13.5
-Pillow==9.5.0
-pystray==0.19.4
+mouse
+keyboard
+pystray
+pywin32
+Pillow
