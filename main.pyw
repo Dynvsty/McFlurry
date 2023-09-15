@@ -12,7 +12,6 @@ import pystray
 import signal
 import threading
 
-#global hotkey
 
 def fix_hotkey(hotkey):
     keyboard.add_hotkey(hotkey, lambda: on_hotkey_pressed() if mouse.is_pressed(button='left') else None)
