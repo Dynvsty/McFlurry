@@ -3,4 +3,4 @@ A simple python app to freeze a Minecraft instance by simulating a right click o
 
 
 # Known Bugs
-1). Hotkey will not function while holding left or right click
+**N/A**
