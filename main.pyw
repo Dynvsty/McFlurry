@@ -12,9 +12,9 @@ import pystray
 import signal
 import threading
 
-global hotkey
+#global hotkey
 
-def fix_hotkey():
+def fix_hotkey(hotkey):
     keyboard.add_hotkey(hotkey, lambda: on_hotkey_pressed() if mouse.is_pressed(button='left') else None)
     keyboard.add_hotkey(hotkey, lambda: on_hotkey_pressed() if mouse.is_pressed(button='right') else None)
 
@@ -104,7 +104,7 @@ def record_hotkey():
     
     # Register the keyboard hotkey
     keyboard.add_hotkey(hotkey, on_hotkey_pressed)
-    fix_hotkey()
+    fix_hotkey(hotkey)
     win32api.MessageBox(None, done_message, title, win32con.MB_OK)
 
 # Check which button was clicked
@@ -113,7 +113,7 @@ if response == win32con.IDOK:
     record_hotkey()
 else:
     hotkey = 'ctrl+alt+x'
-    fix_hotkey()
+    fix_hotkey(hotkey)
     keyboard.add_hotkey(hotkey, on_hotkey_pressed)
 
 def on_quit():
