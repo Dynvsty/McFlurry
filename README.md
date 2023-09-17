@@ -1,6 +1,6 @@
 # McFlurry
 A simple python app to freeze a Minecraft instance by simulating a right click on the window bar.
-This is the micro version, meant to be smaller than the original.
+This is the mini version, meant to be smaller than the original.
 A whole 1 second faster! (***wow!!!***)
 
 
